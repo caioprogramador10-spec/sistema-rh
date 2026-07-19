@@ -20,3 +20,16 @@
 
 const SUPABASE_URL = "https://tznltzbhemayihagucxs.supabase.co";
 const SUPABASE_KEY = "sb_publishable_hCcort9rdDsHcO--2L5txg_zKBflR6Y";
+
+// =========================================================
+// SENHA DE ACESSO AO SISTEMA
+// =========================================================
+// Proteção simples: qualquer pessoa que souber essa senha
+// consegue entrar. NÃO é uma segurança de verdade (quem souber
+// inspecionar o código da página consegue ver esse valor), mas
+// evita que gente sem o link certo ou curiosos abram o sistema
+// à toa.
+//
+// TROQUE esse valor para a senha que o RH vai usar.
+// =========================================================
+const ACESSO_SENHA = "conexaorh2026";
