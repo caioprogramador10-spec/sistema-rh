@@ -124,8 +124,16 @@ não expõem tabelas à API automaticamente por padrão.
 
 ## Observação sobre segurança
 
-Como o sistema não tem tela de login, qualquer pessoa com a `SUPABASE_KEY`
-consegue ler e gravar dados. Isso é razoável para uso interno (arquivo
-rodando só nos computadores do RH), mas **não coloque este projeto em um
-site público** sem antes adicionarmos autenticação. Isso também pode ser
-evoluído facilmente depois.
+O sistema agora tem uma **tela de senha** na entrada (arquivo `js/acesso.js`),
+configurada em `js/config.js` na variável `ACESSO_SENHA`. Troque essa senha
+antes de divulgar o link pro RH.
+
+Importante: essa é uma proteção **simples**, não é uma segurança de verdade
+— como o código roda todo no navegador, qualquer pessoa com conhecimento
+técnico consegue ver a senha inspecionando o código da página. Ela serve
+pra evitar que o link vaze/seja aberto por engano ou curiosidade, não pra
+proteger contra alguém realmente querendo entrar sem permissão.
+
+Se um dia precisar de segurança de verdade (login individual por usuário,
+por exemplo), dá pra evoluir para autenticação real do Supabase — é só
+pedir que eu te ajudo a montar.
