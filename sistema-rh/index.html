@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema RH — Estoque e Exames Periódicos</title>
+  <link rel="icon" type="image/png" href="img/logo.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="mancha-extra"></div>
+
+  <div id="aviso-config" class="aviso-config oculto">
+    ⚠️ O sistema ainda não está conectado ao Supabase. Preencha SUPABASE_URL e SUPABASE_KEY no arquivo <code>js/config.js</code>.
+  </div>
+
+  <div class="app">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+      <div class="marca">
+        <img src="img/logo.png" alt="Logo Sistema RH" class="marca-logo" />
+        <div class="marca-texto">
+          <span class="marca-titulo">Sistema RH</span>
+          <span class="marca-sub">Estoque &amp; Exames</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item ativo" data-pagina="pagina-estoque">
+          <span class="nav-icone">📦</span> Estoque
+        </button>
+        <button class="nav-item" data-pagina="pagina-funcionarios">
+          <span class="nav-icone">🩺</span> Funcionários &amp; Exames
+        </button>
+      </nav>
+
+      <div class="sidebar-links">
+        <a
+          class="nav-link-externo"
+          href="https://caiosantos-png.github.io/Canal-de-Den-ncia/admin.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="nav-icone">📢</span> Canal de Denúncia ADM
+        </a>
+        <a
+          class="nav-link-externo"
+          href="https://caioprogramador10-spec.github.io/Assinatura-Eletr-nico/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="nav-icone">✍️</span> Assinador Eletrônico
+        </a>
+      </div>
+
+      <div class="sidebar-rodape">Uso interno · RH</div>
+    </aside>
+
+    <!-- ===================== CONTEÚDO ===================== -->
+    <main class="conteudo">
+
+      <!-- ===================== ABA ESTOQUE ===================== -->
+      <section id="pagina-estoque" class="pagina ativa">
+        <div class="pagina-header">
+          <h1>Controle de estoque</h1>
+          <p>Cadastre materiais, registre entradas/saídas e acompanhe o estoque mínimo.</p>
+        </div>
+
+        <div class="grade-secoes">
+          <div>
+            <div class="cartao">
+              <h2>Cadastrar material</h2>
+              <form id="form-material">
+                <input type="hidden" id="material-id" value="" />
+                <div class="form-grupo">
+                  <label for="material-nome">Nome do material</label>
+                  <input type="text" id="material-nome" placeholder="Ex: Luva de proteção" required />
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="material-categoria">Categoria</label>
+                    <input type="text" id="material-categoria" placeholder="Ex: EPI" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="material-unidade">Unidade</label>
+                    <input type="text" id="material-unidade" placeholder="un, cx, par..." value="un" />
+                  </div>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="material-quantidade-inicial">Qtd. inicial</label>
+                    <input type="number" id="material-quantidade-inicial" min="0" step="1" value="0" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="material-estoque-minimo">Estoque mínimo</label>
+                    <input type="number" id="material-estoque-minimo" min="0" step="1" value="0" />
+                  </div>
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="material-botao-salvar">Cadastrar material</button>
+                  <button type="button" class="botao-secundario oculto" id="material-botao-cancelar" onclick="cancelarEdicaoMaterial()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="cartao">
+              <h2>Registrar entrada / saída</h2>
+              <form id="form-movimentacao">
+                <div class="form-grupo">
+                  <label for="mov-material">Material</label>
+                  <select id="mov-material" data-select-material required></select>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="mov-tipo">Tipo</label>
+                    <select id="mov-tipo" required>
+                      <option value="">Selecione</option>
+                      <option value="entrada">Entrada (reposição)</option>
+                      <option value="saida">Saída (funcionário recebeu)</option>
+                    </select>
+                  </div>
+                  <div class="form-grupo">
+                    <label for="mov-quantidade">Quantidade</label>
+                    <input type="number" id="mov-quantidade" min="1" step="1" required />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="mov-funcionario">Funcionário (obrigatório em saídas)</label>
+                  <select id="mov-funcionario" data-select-funcionario></select>
+                </div>
+                <div class="form-grupo">
+                  <label for="mov-observacao">Observação</label>
+                  <input type="text" id="mov-observacao" placeholder="Opcional" />
+                </div>
+                <button type="submit" class="botao-primario">Registrar movimentação</button>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="cartao">
+              <h2>Materiais em estoque</h2>
+              <div class="filtro-linha">
+                <input
+                  type="text"
+                  id="filtro-materiais"
+                  class="filtro-tabela"
+                  placeholder="🔍 Filtrar por nome, categoria ou status..."
+                  oninput="filtrarMateriais()"
+                />
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Material</th>
+                      <th>Categoria</th>
+                      <th>Qtd. atual</th>
+                      <th>Estoque mínimo</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-materiais-corpo">
+                    <tr><td colspan="6" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="cartao">
+              <h2>Histórico de movimentações</h2>
+              <div class="filtro-linha">
+                <div class="filtro-grupo">
+                  <label for="filtro-historico-tipo">Tipo</label>
+                  <select id="filtro-historico-tipo" onchange="filtrarHistorico()">
+                    <option value="todos">Todos</option>
+                    <option value="entrada">Entrada</option>
+                    <option value="saida">Saída</option>
+                  </select>
+                </div>
+                <div class="filtro-grupo">
+                  <label for="filtro-historico-de">De</label>
+                  <input type="date" id="filtro-historico-de" oninput="filtrarHistorico()" />
+                </div>
+                <div class="filtro-grupo">
+                  <label for="filtro-historico-ate">Até</label>
+                  <input type="date" id="filtro-historico-ate" oninput="filtrarHistorico()" />
+                </div>
+                <button type="button" class="botao-secundario botao-limpar-filtro" onclick="limparFiltroHistorico()">Limpar</button>
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Material</th>
+                      <th>Tipo</th>
+                      <th>Qtd.</th>
+                      <th>Funcionário</th>
+                      <th>Observação</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-historico-corpo">
+                    <tr><td colspan="7" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ABA FUNCIONÁRIOS / EXAMES ===================== -->
+      <section id="pagina-funcionarios" class="pagina">
+        <div class="pagina-header">
+          <h1>Funcionários &amp; exames periódicos</h1>
+          <p>Cadastre funcionários e acompanhe os prazos de exame periódico. Alerta automático quando faltarem 5 dias ou menos.</p>
+        </div>
+
+        <div class="grade-secoes">
+          <div>
+            <div class="cartao">
+              <h2>Cadastrar funcionário</h2>
+              <form id="form-funcionario">
+                <input type="hidden" id="func-id" value="" />
+                <div class="form-grupo">
+                  <label for="func-nome">Nome completo</label>
+                  <input type="text" id="func-nome" required />
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="func-cargo">Cargo</label>
+                    <input type="text" id="func-cargo" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="func-setor">Setor</label>
+                    <input type="text" id="func-setor" />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="func-admissao">Data de admissão</label>
+                  <input type="date" id="func-admissao" />
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="func-botao-salvar">Cadastrar funcionário</button>
+                  <button type="button" class="botao-secundario oculto" id="func-botao-cancelar" onclick="cancelarEdicaoFuncionario()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="cartao">
+              <h2>Registrar exame periódico</h2>
+              <form id="form-exame">
+                <input type="hidden" id="exame-id" value="" />
+                <div class="form-grupo">
+                  <label for="exame-funcionario">Funcionário</label>
+                  <select id="exame-funcionario" data-select-funcionario required></select>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="exame-data-ultimo">Data do exame realizado</label>
+                    <input type="date" id="exame-data-ultimo" required />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="exame-data-proximo">Data do próximo exame</label>
+                    <input type="date" id="exame-data-proximo" required />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="exame-observacao">Observação</label>
+                  <input type="text" id="exame-observacao" placeholder="Opcional" />
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="exame-botao-salvar">Registrar exame</button>
+                  <button type="button" class="botao-secundario oculto" id="exame-botao-cancelar" onclick="cancelarEdicaoExame()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="cartao">
+              <h2>Funcionários cadastrados</h2>
+              <div class="filtro-linha">
+                <input
+                  type="text"
+                  id="filtro-funcionarios"
+                  class="filtro-tabela"
+                  placeholder="🔍 Filtrar por nome, cargo ou setor..."
+                  oninput="filtrarFuncionarios()"
+                />
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Cargo</th>
+                      <th>Setor</th>
+                      <th>Admissão</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-funcionarios-corpo">
+                    <tr><td colspan="5" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="cartao">
+              <h2>Exames periódicos e prazos</h2>
+              <div class="filtro-linha">
+                <select id="filtro-exames-status" class="filtro-tabela" onchange="filtrarExames()">
+                  <option value="todos">Todos os status</option>
+                  <option value="atrasado">Atrasados</option>
+                  <option value="alerta">Alerta (≤ 5 dias)</option>
+                  <option value="em_dia">Em dia</option>
+                  <option value="realizado">Realizados</option>
+                </select>
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Funcionário</th>
+                      <th>Setor</th>
+                      <th>Último exame</th>
+                      <th>Próximo exame</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-exames-corpo">
+                    <tr><td colspan="6" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- Biblioteca do Supabase (via CDN) -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- Arquivos do sistema, em ordem de dependência -->
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/estoque.js"></script>
+  <script src="js/funcionarios.js"></script>
+</body>
+</html>
