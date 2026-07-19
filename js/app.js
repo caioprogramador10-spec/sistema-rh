@@ -5,9 +5,16 @@
 // =========================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  const conectado = iniciarSupabase();
-
   configurarNavegacao();
+});
+
+// ---------------------------------------------------------
+// Inicializa a conexão com o Supabase e carrega os dados.
+// É chamada pelo acesso.js só depois que a senha é confirmada
+// (ou de cara, se a sessão já estava liberada).
+// ---------------------------------------------------------
+function iniciarApp() {
+  const conectado = iniciarSupabase();
 
   if (conectado) {
     carregarMateriais();
@@ -17,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     popularSelectsFuncionarios();
     popularSelectMateriais();
   }
-});
+}
 
 // ---------------------------------------------------------
 // Navegação entre abas
