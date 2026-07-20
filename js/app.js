@@ -6,6 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   configurarNavegacao();
+  configurarCombosFuncionario();
 });
 
 // ---------------------------------------------------------
@@ -66,13 +67,15 @@ function notificar(mensagem, tipo = "sucesso") {
 }
 
 // ---------------------------------------------------------
-// Popula os <select> de funcionário (usado no formulário de
-// movimentação de estoque e no formulário de exame)
+// Combo de funcionário com busca (estilo iOS): usado no
+// formulário de exame e no de movimentação de estoque.
 // ---------------------------------------------------------
+let funcionariosParaCombo = [];
+
 async function popularSelectsFuncionarios() {
   const { data, error } = await sb
     .from("funcionarios")
-    .select("id, nome")
+    .select("id, nome, cargo, setor")
     .eq("ativo", true)
     .order("nome");
 
@@ -81,18 +84,106 @@ async function popularSelectsFuncionarios() {
     return;
   }
 
-  const selects = document.querySelectorAll("[data-select-funcionario]");
-  selects.forEach((select) => {
-    const valorAtual = select.value;
-    select.innerHTML = '<option value="">Selecione o funcionário</option>';
-    data.forEach((f) => {
-      const opt = document.createElement("option");
-      opt.value = f.id;
-      opt.textContent = f.nome;
-      select.appendChild(opt);
-    });
-    if (valorAtual) select.value = valorAtual;
+  funcionariosParaCombo = data;
+
+  document.querySelectorAll("[data-combo]").forEach((container) => {
+    const input = container.querySelector("[data-combo-input]");
+    renderizarListaCombo(container, input ? input.value : "");
   });
+}
+
+function configurarCombosFuncionario() {
+  document.querySelectorAll("[data-combo]").forEach((container) => {
+    const input = container.querySelector("[data-combo-input]");
+    const valorOculto = container.querySelector("[data-combo-valor]");
+
+    input.addEventListener("focus", () => {
+      renderizarListaCombo(container, input.value);
+      container.classList.add("combo-aberto");
+    });
+
+    input.addEventListener("input", () => {
+      valorOculto.value = "";
+      renderizarListaCombo(container, input.value);
+      container.classList.add("combo-aberto");
+    });
+
+    input.addEventListener("keydown", (evento) => {
+      if (evento.key === "Escape") container.classList.remove("combo-aberto");
+    });
+  });
+
+  // Fecha a lista aberta ao clicar fora do combo
+  document.addEventListener("click", (evento) => {
+    document.querySelectorAll("[data-combo]").forEach((container) => {
+      if (!container.contains(evento.target)) {
+        container.classList.remove("combo-aberto");
+      }
+    });
+  });
+}
+
+function renderizarListaCombo(container, termoBruto) {
+  const lista = container.querySelector("[data-combo-lista]");
+  const termo = (termoBruto || "").trim().toLowerCase();
+
+  const filtrados = !termo
+    ? funcionariosParaCombo
+    : funcionariosParaCombo.filter((f) => f.nome.toLowerCase().includes(termo));
+
+  if (filtrados.length === 0) {
+    lista.innerHTML = `<div class="combo-vazio">Nenhum funcionário encontrado</div>`;
+    return;
+  }
+
+  lista.innerHTML = filtrados
+    .map((f) => {
+      const subtitulo = [f.cargo, f.setor].filter(Boolean).join(" · ");
+      const nomeSeguro = f.nome.replace(/"/g, "&quot;");
+      return `
+        <button type="button" class="combo-item" data-id="${f.id}" data-nome="${nomeSeguro}">
+          <span class="combo-item-avatar">${obterIniciais(f.nome)}</span>
+          <span class="combo-item-texto">
+            <span class="combo-item-nome">${f.nome}</span>
+            ${subtitulo ? `<span class="combo-item-sub">${subtitulo}</span>` : ""}
+          </span>
+        </button>
+      `;
+    })
+    .join("");
+
+  lista.querySelectorAll(".combo-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      selecionarCombo(container, item.dataset.id, item.dataset.nome);
+    });
+  });
+}
+
+function obterIniciais(nome) {
+  const partes = nome.trim().split(/\s+/);
+  return partes
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() || "")
+    .join("");
+}
+
+function selecionarCombo(container, id, nome) {
+  const input = container.querySelector("[data-combo-input]");
+  const valorOculto = container.querySelector("[data-combo-valor]");
+  input.value = nome;
+  valorOculto.value = id;
+  container.classList.remove("combo-aberto");
+}
+
+// Preenche um combo programaticamente (usado ao editar um exame)
+function definirValorCombo(containerId, id) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const input = container.querySelector("[data-combo-input]");
+  const valorOculto = container.querySelector("[data-combo-valor]");
+  const funcionario = funcionariosParaCombo.find((f) => f.id === id);
+  valorOculto.value = id || "";
+  input.value = funcionario ? funcionario.nome : "";
 }
 
 // ---------------------------------------------------------
