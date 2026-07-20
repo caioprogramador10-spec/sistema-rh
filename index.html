@@ -81,9 +81,14 @@
 
       <!-- ===================== ABA ESTOQUE ===================== -->
       <section id="pagina-estoque" class="pagina ativa">
-        <div class="pagina-header">
-          <h1>Controle de estoque</h1>
-          <p>Cadastre materiais, registre entradas/saídas e acompanhe o estoque mínimo.</p>
+        <div class="pagina-header pagina-header-com-acao">
+          <div>
+            <h1>Controle de estoque</h1>
+            <p>Cadastre materiais, registre entradas/saídas e acompanhe o estoque mínimo.</p>
+          </div>
+          <button type="button" class="botao-relatorio" onclick="gerarRelatorioEstoque()">
+            🖨️ Gerar relatório
+          </button>
         </div>
 
         <div class="grade-secoes">
@@ -145,8 +150,22 @@
                   </div>
                 </div>
                 <div class="form-grupo">
-                  <label for="mov-funcionario">Funcionário (obrigatório em saídas)</label>
-                  <select id="mov-funcionario" data-select-funcionario></select>
+                  <label for="mov-funcionario-busca">Funcionário (obrigatório em saídas)</label>
+                  <div class="combo" id="combo-mov-funcionario" data-combo>
+                    <div class="combo-input-wrap">
+                      <span class="combo-icone">🔍</span>
+                      <input
+                        type="text"
+                        id="mov-funcionario-busca"
+                        class="combo-input"
+                        placeholder="Buscar funcionário..."
+                        autocomplete="off"
+                        data-combo-input
+                      />
+                    </div>
+                    <input type="hidden" id="mov-funcionario" data-combo-valor />
+                    <div class="combo-lista" data-combo-lista></div>
+                  </div>
                 </div>
                 <div class="form-grupo">
                   <label for="mov-observacao">Observação</label>
@@ -234,9 +253,14 @@
 
       <!-- ===================== ABA FUNCIONÁRIOS / EXAMES ===================== -->
       <section id="pagina-funcionarios" class="pagina">
-        <div class="pagina-header">
-          <h1>Funcionários &amp; exames periódicos</h1>
-          <p>Cadastre funcionários e acompanhe os prazos de exame periódico. Alerta automático quando faltarem 5 dias ou menos.</p>
+        <div class="pagina-header pagina-header-com-acao">
+          <div>
+            <h1>Funcionários &amp; exames periódicos</h1>
+            <p>Cadastre funcionários e acompanhe os prazos de exame periódico. Alerta automático quando faltarem 5 dias ou menos.</p>
+          </div>
+          <button type="button" class="botao-relatorio" onclick="gerarRelatorioFuncionarios()">
+            🖨️ Gerar relatório
+          </button>
         </div>
 
         <div class="grade-secoes">
@@ -275,8 +299,22 @@
               <form id="form-exame">
                 <input type="hidden" id="exame-id" value="" />
                 <div class="form-grupo">
-                  <label for="exame-funcionario">Funcionário</label>
-                  <select id="exame-funcionario" data-select-funcionario required></select>
+                  <label for="exame-funcionario-busca">Funcionário</label>
+                  <div class="combo" id="combo-exame-funcionario" data-combo>
+                    <div class="combo-input-wrap">
+                      <span class="combo-icone">🔍</span>
+                      <input
+                        type="text"
+                        id="exame-funcionario-busca"
+                        class="combo-input"
+                        placeholder="Buscar funcionário..."
+                        autocomplete="off"
+                        data-combo-input
+                      />
+                    </div>
+                    <input type="hidden" id="exame-funcionario" data-combo-valor />
+                    <div class="combo-lista" data-combo-lista></div>
+                  </div>
                 </div>
                 <div class="form-linha">
                   <div class="form-grupo">
@@ -378,5 +416,6 @@
   <script src="js/app.js"></script>
   <script src="js/estoque.js"></script>
   <script src="js/funcionarios.js"></script>
+  <script src="js/relatorios.js"></script>
 </body>
 </html>
