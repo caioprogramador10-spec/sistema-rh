@@ -232,7 +232,7 @@ function gerarRelatorioFuncionarios() {
   const secoes = [
     {
       titulo: "Funcionários cadastrados",
-      tabelaHtml: clonarTabelaParaRelatorio("tabela-funcionarios-corpo")
+      tabelaHtml: clonarTabelaParaRelatorio("tabela-funcionarios-corpo"),
     },
     {
       titulo: "Exames periódicos e prazos",
