@@ -7,7 +7,24 @@
 document.addEventListener("DOMContentLoaded", () => {
   configurarNavegacao();
   configurarCombosFuncionario();
+  restaurarEstadoSidebar();
 });
+
+// ---------------------------------------------------------
+// Recolher/expandir a coluna da esquerda (sidebar)
+// ---------------------------------------------------------
+function alternarSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const colapsada = sidebar.classList.toggle("colapsada");
+  localStorage.setItem("rh_sidebar_colapsada", colapsada ? "sim" : "nao");
+}
+
+function restaurarEstadoSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  if (localStorage.getItem("rh_sidebar_colapsada") === "sim") {
+    sidebar.classList.add("colapsada");
+  }
+}
 
 // ---------------------------------------------------------
 // Inicializa a conexão com o Supabase e carrega os dados.
