@@ -36,7 +36,11 @@
   <div class="app">
 
     <!-- ===================== SIDEBAR ===================== -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="sidebar-toggle" id="botao-colapsar-sidebar" onclick="alternarSidebar()" title="Minimizar menu">
+        <span id="icone-colapsar-sidebar">‹</span>
+      </button>
+
       <div class="marca">
         <img src="img/logo.png" alt="Logo Sistema RH" class="marca-logo" />
         <div class="marca-texto">
@@ -47,13 +51,13 @@
 
       <nav class="nav">
         <button class="nav-item ativo" data-pagina="pagina-estoque">
-          <span class="nav-icone">📦</span> Estoque
+          <span class="nav-icone">📦</span> <span class="nav-texto">Estoque</span>
         </button>
         <button class="nav-item" data-pagina="pagina-funcionarios">
-          <span class="nav-icone">🩺</span> Funcionários &amp; Exames
+          <span class="nav-icone">🩺</span> <span class="nav-texto">Funcionários &amp; Exames</span>
         </button>
         <button class="nav-item" data-pagina="pagina-avaliacoes">
-          <span class="nav-icone">📝</span> Avaliações
+          <span class="nav-icone">📝</span> <span class="nav-texto">Avaliações</span>
         </button>
       </nav>
 
@@ -64,7 +68,7 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          <span class="nav-icone">📢</span> Canal de Denúncia ADM
+          <span class="nav-icone">📢</span> <span class="nav-texto">Canal de Denúncia ADM</span>
         </a>
         <a
           class="nav-link-externo"
@@ -72,7 +76,7 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          <span class="nav-icone">✍️</span> Assinador Eletrônico
+          <span class="nav-icone">✍️</span> <span class="nav-texto">Assinador Eletrônico</span>
         </a>
         <a
           class="nav-link-externo"
@@ -80,7 +84,7 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          <span class="nav-icone">☎️</span> Lista de Ramais
+          <span class="nav-icone">☎️</span> <span class="nav-texto">Lista de Ramais</span>
         </a>
       </div>
 
