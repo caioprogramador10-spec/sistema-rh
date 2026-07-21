@@ -94,6 +94,11 @@ e-mail — é só pedir que eu te ajudo a montar.
 
 ## Solução de problemas comuns
 
+**Acabei de receber os campos de sexo/idade/dependentes ou a aba
+"Avaliações" — preciso fazer alguma coisa?**
+Sim: volte no **SQL Editor** do Supabase e rode o `sql/schema.sql` inteiro
+de novo. É seguro, não apaga nada que você já tinha cadastrado.
+
 **Já tenho o sistema rodando e agora tem botão de editar/excluir — preciso
 fazer alguma coisa?**
 Sim: volte no **SQL Editor** do Supabase e rode o `sql/schema.sql` inteiro
