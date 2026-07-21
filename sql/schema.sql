@@ -38,6 +38,11 @@ create table if not exists funcionarios (
   created_at timestamptz not null default now()
 );
 
+-- Garante as colunas novas mesmo em bancos que já tinham a tabela
+alter table funcionarios add column if not exists sexo text;
+alter table funcionarios add column if not exists idade integer;
+alter table funcionarios add column if not exists dependentes text;
+
 -- ---------------------------------------------------------
 -- TABELA: movimentacoes_estoque
 -- (toda entrada/saída de material fica registrada aqui)
@@ -64,6 +69,29 @@ create table if not exists exames_periodicos (
   observacao text,
   created_at timestamptz not null default now()
 );
+
+-- ---------------------------------------------------------
+-- TABELA: avaliacoes
+-- Guarda as avaliações PAFDC-RH, PDR, PDI e Treinamento.
+-- As datas (1ª, 2ª, 3ª e Eficácia) são preenchidas manualmente
+-- pelo RH; o sistema avisa quando a próxima data preenchida
+-- estiver perto (mesma lógica do exame periódico).
+-- ---------------------------------------------------------
+create table if not exists avaliacoes (
+  id uuid primary key default gen_random_uuid(),
+  funcionario_id uuid not null references funcionarios(id) on delete cascade,
+  tipo text not null check (tipo in ('pafdc_rh', 'pdr', 'pdi', 'treinamento')),
+  departamento text,
+  data_1 date,
+  data_eficacia date,
+  data_2 date,
+  data_3 date,
+  observacao text,
+  created_at timestamptz not null default now()
+);
+
+-- Garante a coluna nova mesmo em bancos que já tinham a tabela
+alter table avaliacoes add column if not exists resultado text;
 
 -- ---------------------------------------------------------
 -- TRIGGER: atualiza automaticamente a quantidade_atual do
@@ -127,6 +155,7 @@ grant select, insert, update, delete on materiais to anon, authenticated;
 grant select, insert, update, delete on funcionarios to anon, authenticated;
 grant select, insert, update, delete on movimentacoes_estoque to anon, authenticated;
 grant select, insert, update, delete on exames_periodicos to anon, authenticated;
+grant select, insert, update, delete on avaliacoes to anon, authenticated;
 
 -- =========================================================
 -- IMPORTANTE - SOBRE SEGURANÇA (RLS)
