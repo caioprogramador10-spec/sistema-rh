@@ -215,6 +215,62 @@ body::after {
   position: sticky;
   top: 0;
   height: 100vh;
+  transition: width 0.2s ease, padding 0.2s ease;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 26px;
+  right: -13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--cor-navy);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--sombra);
+  z-index: 10;
+  transition: transform 0.2s ease, background 0.15s ease;
+}
+
+.sidebar-toggle:hover {
+  background: var(--cor-primaria-escura);
+}
+
+/* ---------------------------------------------------------
+   SIDEBAR RECOLHIDA (só ícones)
+   --------------------------------------------------------- */
+.sidebar.colapsada {
+  width: 82px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.sidebar.colapsada .marca {
+  justify-content: center;
+}
+
+.sidebar.colapsada .marca-texto,
+.sidebar.colapsada .nav-texto,
+.sidebar.colapsada .sidebar-rodape {
+  display: none;
+}
+
+.sidebar.colapsada .nav-item,
+.sidebar.colapsada .nav-link-externo {
+  justify-content: center;
+  padding: 11px;
+}
+
+.sidebar.colapsada .sidebar-toggle span {
+  display: inline-block;
+  transform: rotate(180deg);
 }
 
 .marca {
@@ -999,6 +1055,9 @@ tbody tr:last-child td {
     gap: 16px;
   }
   .sidebar-rodape {
+    display: none;
+  }
+  .sidebar-toggle {
     display: none;
   }
   .nav {
