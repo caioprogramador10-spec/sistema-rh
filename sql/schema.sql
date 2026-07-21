@@ -80,7 +80,7 @@ create table if not exists exames_periodicos (
 create table if not exists avaliacoes (
   id uuid primary key default gen_random_uuid(),
   funcionario_id uuid not null references funcionarios(id) on delete cascade,
-  tipo text not null check (tipo in ('pafdc_rh', 'pdr', 'pdi', 'treinamento')),
+  tipo text not null check (tipo in ('pafdc_rh', 'pdr', 'pdi', 'pde', 'treinamento')),
   departamento text,
   data_1 date,
   data_eficacia date,
@@ -92,6 +92,12 @@ create table if not exists avaliacoes (
 
 -- Garante a coluna nova mesmo em bancos que já tinham a tabela
 alter table avaliacoes add column if not exists resultado text;
+
+-- Libera o tipo "pde" em bancos que já tinham a tabela criada
+-- antes dessa opção existir
+alter table avaliacoes drop constraint if exists avaliacoes_tipo_check;
+alter table avaliacoes add constraint avaliacoes_tipo_check
+  check (tipo in ('pafdc_rh', 'pdr', 'pdi', 'pde', 'treinamento'));
 
 -- ---------------------------------------------------------
 -- TRIGGER: atualiza automaticamente a quantidade_atual do
