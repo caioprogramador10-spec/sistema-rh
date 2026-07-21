@@ -22,6 +22,7 @@ function iniciarApp() {
     carregarHistoricoMovimentacoes();
     carregarFuncionarios();
     carregarExames();
+    carregarAvaliacoes();
     popularSelectsFuncionarios();
     popularSelectMateriais();
   }
@@ -173,6 +174,15 @@ function selecionarCombo(container, id, nome) {
   input.value = nome;
   valorOculto.value = id;
   container.classList.remove("combo-aberto");
+
+  const alvoDepartamento = container.dataset.autofillDepartamento;
+  if (alvoDepartamento) {
+    const campoDepartamento = document.getElementById(alvoDepartamento);
+    const funcionario = funcionariosParaCombo.find((f) => f.id === id);
+    if (campoDepartamento && funcionario && !campoDepartamento.value) {
+      campoDepartamento.value = funcionario.setor || "";
+    }
+  }
 }
 
 // Preenche um combo programaticamente (usado ao editar um exame)
@@ -213,6 +223,15 @@ async function popularSelectMateriais() {
     });
     if (valorAtual) select.value = valorAtual;
   });
+}
+
+// ---------------------------------------------------------
+// Atualiza o contador ao lado do título de uma tabela
+// ---------------------------------------------------------
+function atualizarContador(id, mostrados, total) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = mostrados === total ? `${total}` : `${mostrados} de ${total}`;
 }
 
 // ---------------------------------------------------------

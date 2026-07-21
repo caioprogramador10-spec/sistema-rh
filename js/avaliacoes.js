@@ -104,7 +104,7 @@ async function carregarAvaliacoes() {
   const { data, error } = await sb
     .from("avaliacoes")
     .select(
-      "id, funcionario_id, tipo, departamento, data_1, data_eficacia, data_2, data_3, observacao, funcionarios(nome, setor)"
+      "id, funcionario_id, tipo, departamento, data_1, data_eficacia, data_2, data_3, resultado, observacao, funcionarios(nome, setor)"
     )
     .order("created_at", { ascending: false });
 
@@ -191,7 +191,7 @@ function renderizarAvaliacoes(lista) {
   corpo.innerHTML = "";
 
   if (lista.length === 0) {
-    corpo.innerHTML = `<tr><td colspan="9" class="celula-vazia">${
+    corpo.innerHTML = `<tr><td colspan="10" class="celula-vazia">${
       avaliacoesCache.length === 0
         ? "Nenhuma avaliação registrada ainda."
         : "Nenhuma avaliação encontrada para esse filtro."
@@ -219,6 +219,22 @@ function renderizarAvaliacoes(lista) {
       statusHtml = `<span class="badge badge-neutro">Sem data registrada</span>`;
     }
 
+    let resultadoHtml;
+    if (a.resultado === "aprovado") {
+      resultadoHtml = '<span class="badge badge-ok">✅ Aprovado</span>';
+    } else if (a.resultado === "reprovado") {
+      resultadoHtml = '<span class="badge badge-vencido">❌ Reprovado</span>';
+    } else {
+      resultadoHtml = '<span class="badge badge-neutro">Pendente</span>';
+    }
+
+    const botoesResultado = a.data_3
+      ? `
+        <button class="botao-mini-sucesso" onclick="marcarResultadoAvaliacao('${a.id}', 'aprovado')">Aprovado</button>
+        <button class="botao-mini-perigo" onclick="marcarResultadoAvaliacao('${a.id}', 'reprovado')">Reprovado</button>
+      `
+      : "";
+
     const observacaoEscapada = (a.observacao || "").replace(/'/g, "\\'");
     const departamentoEscapado = (a.departamento || "").replace(/'/g, "\\'");
 
@@ -231,8 +247,10 @@ function renderizarAvaliacoes(lista) {
       <td>${formatarData(a.data_2)}</td>
       <td>${formatarData(a.data_3)}</td>
       <td>${statusHtml}</td>
+      <td>${resultadoHtml}</td>
       <td>
         <div class="acoes-tabela">
+          ${botoesResultado}
           <button class="botao-mini" onclick="editarAvaliacao('${a.id}', '${a.funcionario_id}', '${a.tipo}', '${departamentoEscapado}', '${a.data_1 || ""}', '${a.data_eficacia || ""}', '${a.data_2 || ""}', '${a.data_3 || ""}', '${observacaoEscapada}')">Editar</button>
           <button class="botao-mini-perigo" onclick="excluirAvaliacao('${a.id}')">Excluir</button>
         </div>
@@ -240,6 +258,23 @@ function renderizarAvaliacoes(lista) {
     `;
     corpo.appendChild(linha);
   });
+}
+
+// ---------------------------------------------------------
+// Marca o resultado final (aprovado/reprovado) — só faz
+// sentido depois que a 3ª etapa foi preenchida
+// ---------------------------------------------------------
+async function marcarResultadoAvaliacao(id, resultado) {
+  const { error } = await sb.from("avaliacoes").update({ resultado }).eq("id", id);
+
+  if (error) {
+    console.error(error);
+    notificar("Erro ao registrar o resultado.", "erro");
+    return;
+  }
+
+  notificar(resultado === "aprovado" ? "Avaliação marcada como aprovada." : "Avaliação marcada como reprovada.");
+  carregarAvaliacoes();
 }
 
 // ---------------------------------------------------------

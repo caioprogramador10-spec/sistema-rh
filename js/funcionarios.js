@@ -25,17 +25,29 @@ async function adicionarFuncionario(evento) {
   const cargo = document.getElementById("func-cargo").value.trim();
   const setor = document.getElementById("func-setor").value.trim();
   const dataAdmissao = document.getElementById("func-admissao").value || null;
+  const sexo = document.getElementById("func-sexo").value || null;
+  const idade = document.getElementById("func-idade").value
+    ? Number(document.getElementById("func-idade").value)
+    : null;
+  const dependentes = document.getElementById("func-dependentes").value.trim();
 
   if (!nome) {
     notificar("Informe o nome do funcionário.", "erro");
     return;
   }
 
+  const registro = {
+    nome,
+    cargo: cargo || null,
+    setor: setor || null,
+    data_admissao: dataAdmissao,
+    sexo,
+    idade,
+    dependentes: dependentes || null,
+  };
+
   if (id) {
-    const { error } = await sb
-      .from("funcionarios")
-      .update({ nome, cargo: cargo || null, setor: setor || null, data_admissao: dataAdmissao })
-      .eq("id", id);
+    const { error } = await sb.from("funcionarios").update(registro).eq("id", id);
 
     if (error) {
       console.error(error);
@@ -46,12 +58,7 @@ async function adicionarFuncionario(evento) {
     notificar("Funcionário atualizado com sucesso.");
     cancelarEdicaoFuncionario();
   } else {
-    const { error } = await sb.from("funcionarios").insert({
-      nome,
-      cargo: cargo || null,
-      setor: setor || null,
-      data_admissao: dataAdmissao,
-    });
+    const { error } = await sb.from("funcionarios").insert(registro);
 
     if (error) {
       console.error(error);
@@ -70,12 +77,15 @@ async function adicionarFuncionario(evento) {
 // ---------------------------------------------------------
 // Preenche o formulário com os dados do funcionário para edição
 // ---------------------------------------------------------
-function editarFuncionario(id, nome, cargo, setor, dataAdmissao) {
+function editarFuncionario(id, nome, cargo, setor, dataAdmissao, sexo, idade, dependentes) {
   document.getElementById("func-id").value = id;
   document.getElementById("func-nome").value = nome;
   document.getElementById("func-cargo").value = cargo || "";
   document.getElementById("func-setor").value = setor || "";
   document.getElementById("func-admissao").value = dataAdmissao || "";
+  document.getElementById("func-sexo").value = sexo || "";
+  document.getElementById("func-idade").value = idade || "";
+  document.getElementById("func-dependentes").value = dependentes || "";
 
   document.getElementById("func-botao-salvar").textContent = "Salvar alterações";
   document.getElementById("func-botao-cancelar").classList.remove("oculto");
@@ -151,11 +161,12 @@ function filtrarFuncionarios() {
 }
 
 function renderizarFuncionarios(data) {
+  atualizarContador("contador-funcionarios", data.length, funcionariosCache.length);
   const corpo = document.getElementById("tabela-funcionarios-corpo");
   corpo.innerHTML = "";
 
   if (data.length === 0) {
-    corpo.innerHTML = `<tr><td colspan="5" class="celula-vazia">${
+    corpo.innerHTML = `<tr><td colspan="8" class="celula-vazia">${
       funcionariosCache.length === 0
         ? "Nenhum funcionário cadastrado ainda."
         : "Nenhum funcionário encontrado para esse filtro."
@@ -168,15 +179,20 @@ function renderizarFuncionarios(data) {
     const nomeEscapado = f.nome.replace(/'/g, "\\'");
     const cargoEscapado = (f.cargo || "").replace(/'/g, "\\'");
     const setorEscapado = (f.setor || "").replace(/'/g, "\\'");
+    const sexoEscapado = (f.sexo || "").replace(/'/g, "\\'");
+    const dependentesEscapados = (f.dependentes || "").replace(/'/g, "\\'");
 
     linha.innerHTML = `
       <td>${f.nome}</td>
       <td>${f.cargo || "-"}</td>
       <td>${f.setor || "-"}</td>
       <td>${formatarData(f.data_admissao)}</td>
+      <td>${f.sexo || "-"}</td>
+      <td>${f.idade || "-"}</td>
+      <td>${f.dependentes || "-"}</td>
       <td>
         <div class="acoes-tabela">
-          <button class="botao-mini" onclick="editarFuncionario('${f.id}', '${nomeEscapado}', '${cargoEscapado}', '${setorEscapado}', '${f.data_admissao || ""}')">Editar</button>
+          <button class="botao-mini" onclick="editarFuncionario('${f.id}', '${nomeEscapado}', '${cargoEscapado}', '${setorEscapado}', '${f.data_admissao || ""}', '${sexoEscapado}', '${f.idade || ""}', '${dependentesEscapados}')">Editar</button>
           <button class="botao-mini-perigo" onclick="excluirFuncionario('${f.id}', '${nomeEscapado}')">Excluir</button>
         </div>
       </td>
@@ -247,7 +263,7 @@ async function registrarExame(evento) {
 // ---------------------------------------------------------
 function editarExame(id, funcionarioId, dataUltimo, dataProximo, observacao) {
   document.getElementById("exame-id").value = id;
-  document.getElementById("exame-funcionario").value = funcionarioId;
+  definirValorCombo("combo-exame-funcionario", funcionarioId);
   document.getElementById("exame-data-ultimo").value = dataUltimo;
   document.getElementById("exame-data-proximo").value = dataProximo;
   document.getElementById("exame-observacao").value = observacao || "";
@@ -360,6 +376,7 @@ function filtrarExames() {
 }
 
 function renderizarExames(data) {
+  atualizarContador("contador-exames", data.length, examesCache.length);
   const corpo = document.getElementById("tabela-exames-corpo");
   corpo.innerHTML = "";
 

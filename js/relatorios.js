@@ -226,8 +226,22 @@ function gerarRelatorioEstoque() {
 }
 
 // ---------------------------------------------------------
-// Relatório da aba Funcionários & Exames
+// Relatório da aba Avaliações
 // ---------------------------------------------------------
+function gerarRelatorioAvaliacoes() {
+  const secoes = [
+    {
+      titulo: "Avaliações (PAFDC-RH, PDR, PDI, Treinamento)",
+      tabelaHtml: clonarTabelaParaRelatorio("tabela-avaliacoes-corpo"),
+    },
+  ];
+
+  abrirRelatorio(
+    "Relatório de Avaliações",
+    "PAFDC-RH, PDR, PDI e Treinamento — datas e prazos",
+    secoes
+  );
+}
 function gerarRelatorioFuncionarios() {
   const secoes = [
     {
