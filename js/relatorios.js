@@ -232,16 +232,30 @@ function gerarRelatorioEstoque() {
 function gerarRelatorioAvaliacoes() {
   const secoes = [
     {
-      titulo: "Avaliações (PAFDC-RH, PDR, PDI, Treinamento)",
+      titulo: "Avaliações (PAFDC-RH, PDR, PDI, PDE, Treinamento)",
       tabelaHtml: clonarTabelaParaRelatorio("tabela-avaliacoes-corpo"),
     },
   ];
 
   abrirRelatorio(
     "Relatório de Avaliações",
-    "PAFDC-RH, PDR, PDI e Treinamento — datas e prazos",
+    "PAFDC-RH, PDR, PDI, PDE e Treinamento — datas e prazos",
     secoes
   );
+}
+
+// ---------------------------------------------------------
+// Relatório da aba Ausências
+// ---------------------------------------------------------
+function gerarRelatorioAusencias() {
+  const secoes = [
+    {
+      titulo: "Controle de ausências",
+      tabelaHtml: clonarTabelaParaRelatorio("tabela-ausencias-corpo"),
+    },
+  ];
+
+  abrirRelatorio("Relatório de Ausências", "Faltas, atestados e -6h por funcionário", secoes);
 }
 function gerarRelatorioFuncionarios() {
   const secoes = [
