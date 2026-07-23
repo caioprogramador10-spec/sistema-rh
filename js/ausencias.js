@@ -32,7 +32,7 @@ function filtrarAusencias() {
   const termo = (document.getElementById("filtro-ausencias-busca")?.value || "").trim().toLowerCase();
 
   const filtradas = ausenciasCache.filter((a) => {
-    if (mes && a.mes_referencia !== mes) return false;
+    if (mes && (a.mes_referencia || "").slice(0, 7) !== mes) return false;
     if (termo && !(a.funcionarios?.nome || "").toLowerCase().includes(termo)) return false;
     return true;
   });
@@ -40,10 +40,8 @@ function filtrarAusencias() {
   renderizarAusencias(filtradas);
 }
 
-function formatarMes(mesReferencia) {
-  if (!mesReferencia) return "-";
-  const [ano, mes] = mesReferencia.split("-");
-  return `${mes}/${ano}`;
+function formatarDataReferencia(data) {
+  return formatarData(data);
 }
 
 function renderizarAusencias(lista) {
@@ -69,7 +67,7 @@ function renderizarAusencias(lista) {
 
     linha.innerHTML = `
       <td>${a.funcionarios?.nome || "-"}</td>
-      <td>${formatarMes(a.mes_referencia)}</td>
+      <td>${formatarDataReferencia(a.mes_referencia)}</td>
       <td>${a.faltas || 0}</td>
       <td>${a.atestados || 0}</td>
       <td>${a.horas_menos6 || 0}</td>
