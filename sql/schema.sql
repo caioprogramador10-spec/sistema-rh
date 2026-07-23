@@ -71,6 +71,26 @@ create table if not exists exames_periodicos (
 );
 
 -- ---------------------------------------------------------
+-- TABELA: ausencias
+-- Controle mensal de faltas, atestados e -6h por funcionário.
+-- O "Total de ausências" (faltas + atestados + -6h) é
+-- calculado automaticamente na tela, não precisa preencher.
+-- ---------------------------------------------------------
+create table if not exists ausencias (
+  id uuid primary key default gen_random_uuid(),
+  funcionario_id uuid not null references funcionarios(id) on delete cascade,
+  mes_referencia text, -- formato "AAAA-MM"
+  faltas integer not null default 0,
+  atestados integer not null default 0,
+  horas_menos6 integer not null default 0,
+  adv_susp text,
+  recebe_va boolean not null default true,
+  atestado_pendente boolean not null default false,
+  observacao text,
+  created_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------
 -- TABELA: avaliacoes
 -- Guarda as avaliações PAFDC-RH, PDR, PDI e Treinamento.
 -- As datas (1ª, 2ª, 3ª e Eficácia) são preenchidas manualmente
@@ -162,6 +182,7 @@ grant select, insert, update, delete on funcionarios to anon, authenticated;
 grant select, insert, update, delete on movimentacoes_estoque to anon, authenticated;
 grant select, insert, update, delete on exames_periodicos to anon, authenticated;
 grant select, insert, update, delete on avaliacoes to anon, authenticated;
+grant select, insert, update, delete on ausencias to anon, authenticated;
 
 -- =========================================================
 -- IMPORTANTE - SOBRE SEGURANÇA (RLS)
