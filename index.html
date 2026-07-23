@@ -3,8 +3,742 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema RH — Estoque e Exames Periódicos</title><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sistema RH — Estoque e Exames Periódicos</title>
   <link rel="icon" type="image/png" href="img/logo.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="mancha-extra"></div>
+
+  <!-- ===================== TELA DE SENHA ===================== -->
+  <div id="tela-acesso" class="tela-acesso">
+    <div class="cartao-acesso">
+      <img src="img/logo.png" alt="Logo Sistema RH" class="acesso-logo" />
+      <h1>Sistema RH</h1>
+      <p>Digite a senha de acesso para continuar.</p>
+      <form id="form-acesso">
+        <input type="password" id="acesso-senha-input" placeholder="Senha" autocomplete="off" required />
+        <button type="submit" class="botao-primario">Entrar</button>
+      </form>
+      <p id="acesso-erro" class="acesso-erro oculto">Senha incorreta. Tente novamente.</p>
+    </div>
+  </div>
+
+  <div id="aviso-config" class="aviso-config oculto">
+    ⚠️ O sistema ainda não está conectado ao Supabase. Preencha SUPABASE_URL e SUPABASE_KEY no arquivo <code>js/config.js</code>.
+  </div>
+
+  <div class="app">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="sidebar-toggle" id="botao-colapsar-sidebar" onclick="alternarSidebar()" title="Minimizar menu">
+        <span id="icone-colapsar-sidebar">‹</span>
+      </button>
+
+      <div class="marca">
+        <img src="img/logo.png" alt="Logo Sistema RH" class="marca-logo" />
+        <div class="marca-texto">
+          <span class="marca-titulo">Sistema RH</span>
+          <span class="marca-sub">Estoque &amp; Exames</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item ativo" data-pagina="pagina-estoque">
+          <span class="nav-icone">📦</span> <span class="nav-texto">Estoque</span>
+        </button>
+        <button class="nav-item" data-pagina="pagina-funcionarios">
+          <span class="nav-icone">🩺</span> <span class="nav-texto">Funcionários &amp; Exames</span>
+        </button>
+        <button class="nav-item" data-pagina="pagina-avaliacoes">
+          <span class="nav-icone">📝</span> <span class="nav-texto">Avaliações</span>
+        </button>
+        <button class="nav-item" data-pagina="pagina-ausencias">
+          <span class="nav-icone">🗓️</span> <span class="nav-texto">Ausências</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-links">
+        <a
+          class="nav-link-externo"
+          href="https://caiosantos-png.github.io/Canal-de-Den-ncia/admin.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="nav-icone">📢</span> <span class="nav-texto">Canal de Denúncia ADM</span>
+        </a>
+        <a
+          class="nav-link-externo"
+          href="https://caioprogramador10-spec.github.io/Assinatura-Eletr-nico/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="nav-icone">✍️</span> <span class="nav-texto">Assinador Eletrônico</span>
+        </a>
+        <a
+          class="nav-link-externo"
+          href="https://caiosantos-png.github.io/conexao-ramais/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="nav-icone">☎️</span> <span class="nav-texto">Lista de Ramais</span>
+        </a>
+      </div>
+
+      <div class="sidebar-rodape">Uso interno · RH</div>
+    </aside>
+
+    <!-- ===================== CONTEÚDO ===================== -->
+    <main class="conteudo">
+
+      <!-- ===================== ABA ESTOQUE ===================== -->
+      <section id="pagina-estoque" class="pagina ativa">
+        <div class="pagina-header pagina-header-com-acao">
+          <div>
+            <h1>Controle de estoque</h1>
+            <p>Cadastre materiais, registre entradas/saídas e acompanhe o estoque mínimo.</p>
+          </div>
+          <button type="button" class="botao-relatorio" onclick="gerarRelatorioEstoque()">
+            🖨️ Gerar relatório
+          </button>
+        </div>
+
+        <div class="grade-secoes">
+          <div>
+            <div class="cartao">
+              <h2>Cadastrar material</h2>
+              <form id="form-material">
+                <input type="hidden" id="material-id" value="" />
+                <div class="form-grupo">
+                  <label for="material-nome">Nome do material</label>
+                  <input type="text" id="material-nome" placeholder="Ex: Luva de proteção" required />
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="material-categoria">Categoria</label>
+                    <input type="text" id="material-categoria" placeholder="Ex: EPI" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="material-unidade">Unidade</label>
+                    <input type="text" id="material-unidade" placeholder="un, cx, par..." value="un" />
+                  </div>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="material-quantidade-inicial">Qtd. inicial</label>
+                    <input type="number" id="material-quantidade-inicial" min="0" step="1" value="0" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="material-estoque-minimo">Estoque mínimo</label>
+                    <input type="number" id="material-estoque-minimo" min="0" step="1" value="0" />
+                  </div>
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="material-botao-salvar">Cadastrar material</button>
+                  <button type="button" class="botao-secundario oculto" id="material-botao-cancelar" onclick="cancelarEdicaoMaterial()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="cartao">
+              <h2>Registrar entrada / saída</h2>
+              <form id="form-movimentacao">
+                <div class="form-grupo">
+                  <label for="mov-material">Material</label>
+                  <select id="mov-material" data-select-material required></select>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="mov-tipo">Tipo</label>
+                    <select id="mov-tipo" required>
+                      <option value="">Selecione</option>
+                      <option value="entrada">Entrada (reposição)</option>
+                      <option value="saida">Saída (funcionário recebeu)</option>
+                    </select>
+                  </div>
+                  <div class="form-grupo">
+                    <label for="mov-quantidade">Quantidade</label>
+                    <input type="number" id="mov-quantidade" min="1" step="1" required />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="mov-funcionario-busca">Funcionário (obrigatório em saídas)</label>
+                  <div class="combo" id="combo-mov-funcionario" data-combo>
+                    <div class="combo-input-wrap">
+                      <span class="combo-icone">🔍</span>
+                      <input
+                        type="text"
+                        id="mov-funcionario-busca"
+                        class="combo-input"
+                        placeholder="Buscar funcionário..."
+                        autocomplete="off"
+                        data-combo-input
+                      />
+                    </div>
+                    <input type="hidden" id="mov-funcionario" data-combo-valor />
+                    <div class="combo-lista" data-combo-lista></div>
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="mov-observacao">Observação</label>
+                  <input type="text" id="mov-observacao" placeholder="Opcional" />
+                </div>
+                <button type="submit" class="botao-primario">Registrar movimentação</button>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="cartao">
+              <h2>Materiais em estoque <span class="contador-cartao" id="contador-materiais"></span></h2>
+              <div class="filtro-linha">
+                <input
+                  type="text"
+                  id="filtro-materiais"
+                  class="filtro-tabela"
+                  placeholder="🔍 Filtrar por nome, categoria ou status..."
+                  oninput="filtrarMateriais()"
+                />
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Material</th>
+                      <th>Categoria</th>
+                      <th>Qtd. atual</th>
+                      <th>Estoque mínimo</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-materiais-corpo">
+                    <tr><td colspan="6" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="cartao">
+              <h2>Histórico de movimentações <span class="contador-cartao" id="contador-historico"></span></h2>
+              <div class="filtro-linha">
+                <div class="filtro-grupo">
+                  <label for="filtro-historico-tipo">Tipo</label>
+                  <select id="filtro-historico-tipo" onchange="filtrarHistorico()">
+                    <option value="todos">Todos</option>
+                    <option value="entrada">Entrada</option>
+                    <option value="saida">Saída</option>
+                  </select>
+                </div>
+                <div class="filtro-grupo">
+                  <label for="filtro-historico-de">De</label>
+                  <input type="date" id="filtro-historico-de" oninput="filtrarHistorico()" />
+                </div>
+                <div class="filtro-grupo">
+                  <label for="filtro-historico-ate">Até</label>
+                  <input type="date" id="filtro-historico-ate" oninput="filtrarHistorico()" />
+                </div>
+                <button type="button" class="botao-secundario botao-limpar-filtro" onclick="limparFiltroHistorico()">Limpar</button>
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Material</th>
+                      <th>Tipo</th>
+                      <th>Qtd.</th>
+                      <th>Funcionário</th>
+                      <th>Observação</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-historico-corpo">
+                    <tr><td colspan="7" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ABA FUNCIONÁRIOS / EXAMES ===================== -->
+      <section id="pagina-funcionarios" class="pagina">
+        <div class="pagina-header pagina-header-com-acao">
+          <div>
+            <h1>Funcionários &amp; exames periódicos</h1>
+            <p>Cadastre funcionários e acompanhe os prazos de exame periódico. Alerta automático quando faltarem 5 dias ou menos.</p>
+          </div>
+          <button type="button" class="botao-relatorio" onclick="gerarRelatorioFuncionarios()">
+            🖨️ Gerar relatório
+          </button>
+        </div>
+
+        <div class="grade-secoes">
+          <div>
+            <div class="cartao">
+              <h2>Cadastrar funcionário</h2>
+              <form id="form-funcionario">
+                <input type="hidden" id="func-id" value="" />
+                <div class="form-grupo">
+                  <label for="func-nome">Nome completo</label>
+                  <input type="text" id="func-nome" required />
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="func-cargo">Cargo</label>
+                    <input type="text" id="func-cargo" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="func-setor">Setor</label>
+                    <input type="text" id="func-setor" />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="func-admissao">Data de admissão</label>
+                  <input type="date" id="func-admissao" />
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="func-sexo">Sexo</label>
+                    <select id="func-sexo">
+                      <option value="">Selecione</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Feminino">Feminino</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
+                  <div class="form-grupo">
+                    <label for="func-idade">Idade</label>
+                    <input type="number" id="func-idade" min="0" max="120" />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="func-dependentes">Nome dos dependentes</label>
+                  <input type="text" id="func-dependentes" placeholder="Separe por vírgula, se houver mais de um" />
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="func-botao-salvar">Cadastrar funcionário</button>
+                  <button type="button" class="botao-secundario oculto" id="func-botao-cancelar" onclick="cancelarEdicaoFuncionario()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="cartao">
+              <h2>Registrar exame periódico</h2>
+              <form id="form-exame">
+                <input type="hidden" id="exame-id" value="" />
+                <div class="form-grupo">
+                  <label for="exame-funcionario-busca">Funcionário</label>
+                  <div class="combo" id="combo-exame-funcionario" data-combo>
+                    <div class="combo-input-wrap">
+                      <span class="combo-icone">🔍</span>
+                      <input
+                        type="text"
+                        id="exame-funcionario-busca"
+                        class="combo-input"
+                        placeholder="Buscar funcionário..."
+                        autocomplete="off"
+                        data-combo-input
+                      />
+                    </div>
+                    <input type="hidden" id="exame-funcionario" data-combo-valor />
+                    <div class="combo-lista" data-combo-lista></div>
+                  </div>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="exame-data-ultimo">Data do exame realizado</label>
+                    <input type="date" id="exame-data-ultimo" required />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="exame-data-proximo">Data do próximo exame</label>
+                    <input type="date" id="exame-data-proximo" required />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="exame-observacao">Observação</label>
+                  <input type="text" id="exame-observacao" placeholder="Opcional" />
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="exame-botao-salvar">Registrar exame</button>
+                  <button type="button" class="botao-secundario oculto" id="exame-botao-cancelar" onclick="cancelarEdicaoExame()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="cartao">
+              <h2>Funcionários cadastrados <span class="contador-cartao" id="contador-funcionarios"></span></h2>
+              <div class="filtro-linha">
+                <input
+                  type="text"
+                  id="filtro-funcionarios"
+                  class="filtro-tabela"
+                  placeholder="🔍 Filtrar por nome, cargo ou setor..."
+                  oninput="filtrarFuncionarios()"
+                />
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Cargo</th>
+                      <th>Setor</th>
+                      <th>Admissão</th>
+                      <th>Sexo</th>
+                      <th>Idade</th>
+                      <th>Dependentes</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-funcionarios-corpo">
+                    <tr><td colspan="8" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="cartao">
+              <h2>Exames periódicos e prazos <span class="contador-cartao" id="contador-exames"></span></h2>
+              <div class="filtro-linha">
+                <select id="filtro-exames-status" class="filtro-tabela" onchange="filtrarExames()">
+                  <option value="todos">Todos os status</option>
+                  <option value="atrasado">Atrasados</option>
+                  <option value="alerta">Alerta (≤ 5 dias)</option>
+                  <option value="em_dia">Em dia</option>
+                  <option value="realizado">Realizados</option>
+                </select>
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Funcionário</th>
+                      <th>Setor</th>
+                      <th>Último exame</th>
+                      <th>Próximo exame</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-exames-corpo">
+                    <tr><td colspan="6" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ABA AVALIAÇÕES ===================== -->
+      <section id="pagina-avaliacoes" class="pagina">
+        <div class="pagina-header pagina-header-com-acao">
+          <div>
+            <h1>Avaliações</h1>
+            <p>Registre PAFDC-RH, PDR, PDI e Treinamento. Alerta automático quando a próxima data preenchida estiver a 5 dias ou menos.</p>
+          </div>
+          <button type="button" class="botao-relatorio" onclick="gerarRelatorioAvaliacoes()">
+            🖨️ Gerar relatório
+          </button>
+        </div>
+
+        <div class="grade-secoes">
+          <div>
+            <div class="cartao">
+              <h2>Registrar avaliação</h2>
+              <p class="cartao-subtitulo">
+                <strong>PAFDC-RH:</strong> Acompanhamento, Feedback e Desenvolvimento Contínuo pelo RH ·
+                <strong>PDR:</strong> Plano de Desenvolvimento de Reversão ·
+                <strong>PDI:</strong> Desenvolvimento de Experiência (check quinzenal) ·
+                <strong>PDE:</strong> Plano de Desenvolvimento de Experiência (check quinzenal) ·
+                <strong>Treinamento:</strong> capacitações e eficácia
+              </p>
+              <form id="form-avaliacao">
+                <input type="hidden" id="avaliacao-id" value="" />
+                <div class="form-grupo">
+                  <label for="avaliacao-funcionario-busca">Funcionário</label>
+                  <div
+                    class="combo"
+                    id="combo-avaliacao-funcionario"
+                    data-combo
+                    data-autofill-departamento="avaliacao-departamento"
+                  >
+                    <div class="combo-input-wrap">
+                      <span class="combo-icone">🔍</span>
+                      <input
+                        type="text"
+                        id="avaliacao-funcionario-busca"
+                        class="combo-input"
+                        placeholder="Buscar funcionário..."
+                        autocomplete="off"
+                        data-combo-input
+                      />
+                    </div>
+                    <input type="hidden" id="avaliacao-funcionario" data-combo-valor />
+                    <div class="combo-lista" data-combo-lista></div>
+                  </div>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="avaliacao-tipo">Tipo de avaliação</label>
+                    <select id="avaliacao-tipo" onchange="alternarCampoEficacia()" required>
+                      <option value="">Selecione</option>
+                      <option value="pafdc_rh">PAFDC-RH</option>
+                      <option value="pdr">PDR</option>
+                      <option value="pdi">PDI</option>
+                      <option value="pde">PDE</option>
+                      <option value="treinamento">Treinamento</option>
+                    </select>
+                  </div>
+                  <div class="form-grupo">
+                    <label for="avaliacao-departamento">Departamento</label>
+                    <input type="text" id="avaliacao-departamento" placeholder="Ex: Suporte Técnico" />
+                  </div>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="avaliacao-data-1">1ª data</label>
+                    <input type="date" id="avaliacao-data-1" />
+                  </div>
+                  <div class="form-grupo oculto" id="grupo-avaliacao-eficacia">
+                    <label for="avaliacao-data-eficacia">Eficácia</label>
+                    <input type="date" id="avaliacao-data-eficacia" />
+                  </div>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="avaliacao-data-2">2ª data</label>
+                    <input type="date" id="avaliacao-data-2" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="avaliacao-data-3">3ª data</label>
+                    <input type="date" id="avaliacao-data-3" />
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="avaliacao-observacao">Observação</label>
+                  <input type="text" id="avaliacao-observacao" placeholder="Opcional" />
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="avaliacao-botao-salvar">Registrar avaliação</button>
+                  <button type="button" class="botao-secundario oculto" id="avaliacao-botao-cancelar" onclick="cancelarEdicaoAvaliacao()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="cartao">
+              <h2>Avaliações registradas <span class="contador-cartao" id="contador-avaliacoes"></span></h2>
+              <div class="filtro-linha">
+                <select id="filtro-avaliacoes-tipo" onchange="filtrarAvaliacoes()">
+                  <option value="todos">Todos os tipos</option>
+                  <option value="pafdc_rh">PAFDC-RH</option>
+                  <option value="pdr">PDR</option>
+                  <option value="pdi">PDI</option>
+                  <option value="pde">PDE</option>
+                  <option value="treinamento">Treinamento</option>
+                </select>
+                <input
+                  type="text"
+                  id="filtro-avaliacoes-busca"
+                  class="filtro-tabela"
+                  placeholder="🔍 Filtrar por nome ou departamento..."
+                  oninput="filtrarAvaliacoes()"
+                />
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Funcionário</th>
+                      <th>Departamento</th>
+                      <th>Tipo</th>
+                      <th>1ª</th>
+                      <th>Eficácia</th>
+                      <th>2ª</th>
+                      <th>3ª</th>
+                      <th>Próximo prazo</th>
+                      <th>Resultado</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-avaliacoes-corpo">
+                    <tr><td colspan="10" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ABA AUSÊNCIAS ===================== -->
+      <section id="pagina-ausencias" class="pagina">
+        <div class="pagina-header pagina-header-com-acao">
+          <div>
+            <h1>Controle de ausências</h1>
+            <p>Faltas, atestados e -6h por funcionário. O total de ausências é somado automaticamente.</p>
+          </div>
+          <button type="button" class="botao-relatorio" onclick="gerarRelatorioAusencias()">
+            🖨️ Gerar relatório
+          </button>
+        </div>
+
+        <div class="grade-secoes">
+          <div>
+            <div class="cartao">
+              <h2>Registrar ausência</h2>
+              <form id="form-ausencia">
+                <input type="hidden" id="ausencia-id" value="" />
+                <div class="form-grupo">
+                  <label for="ausencia-funcionario-busca">Funcionário</label>
+                  <div class="combo" id="combo-ausencia-funcionario" data-combo>
+                    <div class="combo-input-wrap">
+                      <span class="combo-icone">🔍</span>
+                      <input
+                        type="text"
+                        id="ausencia-funcionario-busca"
+                        class="combo-input"
+                        placeholder="Buscar funcionário..."
+                        autocomplete="off"
+                        data-combo-input
+                      />
+                    </div>
+                    <input type="hidden" id="ausencia-funcionario" data-combo-valor />
+                    <div class="combo-lista" data-combo-lista></div>
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="ausencia-mes">Data de referência</label>
+                  <input type="date" id="ausencia-mes" />
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="ausencia-faltas">Faltas</label>
+                    <input type="number" id="ausencia-faltas" min="0" value="0" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="ausencia-atestados">Atestados</label>
+                    <input type="number" id="ausencia-atestados" min="0" value="0" />
+                  </div>
+                  <div class="form-grupo">
+                    <label for="ausencia-6h">-6h</label>
+                    <input type="number" id="ausencia-6h" min="0" value="0" />
+                  </div>
+                </div>
+                <div class="form-linha">
+                  <div class="form-grupo">
+                    <label for="ausencia-adv-susp">Adv/Susp.</label>
+                    <select id="ausencia-adv-susp">
+                      <option value="">Nenhuma</option>
+                      <option value="Advertência">Advertência</option>
+                      <option value="Suspensão">Suspensão</option>
+                    </select>
+                  </div>
+                  <div class="form-grupo">
+                    <label for="ausencia-recebe-va">Recebe VA</label>
+                    <select id="ausencia-recebe-va">
+                      <option value="sim">Sim</option>
+                      <option value="nao">Não</option>
+                    </select>
+                  </div>
+                  <div class="form-grupo">
+                    <label for="ausencia-atestado-pendente">Atestado pendente</label>
+                    <select id="ausencia-atestado-pendente">
+                      <option value="nao">Não</option>
+                      <option value="sim">Sim</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-grupo">
+                  <label for="ausencia-observacao">Observação</label>
+                  <input type="text" id="ausencia-observacao" placeholder="Opcional" />
+                </div>
+                <div class="form-acoes">
+                  <button type="submit" class="botao-primario" id="ausencia-botao-salvar">Registrar ausência</button>
+                  <button type="button" class="botao-secundario oculto" id="ausencia-botao-cancelar" onclick="cancelarEdicaoAusencia()">Cancelar edição</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="cartao">
+              <h2>Registros de ausências <span class="contador-cartao" id="contador-ausencias"></span></h2>
+              <div class="filtro-linha">
+                <input type="month" id="filtro-ausencias-mes" onchange="filtrarAusencias()" />
+                <input
+                  type="text"
+                  id="filtro-ausencias-busca"
+                  class="filtro-tabela"
+                  placeholder="🔍 Filtrar por nome..."
+                  oninput="filtrarAusencias()"
+                />
+              </div>
+              <div class="tabela-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Funcionário</th>
+                      <th>Data</th>
+                      <th>Faltas</th>
+                      <th>Atestados</th>
+                      <th>-6h</th>
+                      <th>Total de ausências</th>
+                      <th>Adv/Susp.</th>
+                      <th>Recebe VA</th>
+                      <th>Atestado pendente</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-ausencias-corpo">
+                    <tr><td colspan="10" class="celula-vazia">Carregando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- Biblioteca do Supabase (via CDN) -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- Arquivos do sistema, em ordem de dependência -->
+  <script src="js/config.js"></script>
+  <script src="js/acesso.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/estoque.js"></script>
+  <script src="js/funcionarios.js"></script>
+  <script src="js/avaliacoes.js"></script>
+  <script src="js/ausencias.js"></script>
+  <script src="js/relatorios.js"></script>
+</body>
+</html>
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
