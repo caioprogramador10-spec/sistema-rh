@@ -10,6 +10,7 @@ const TIPOS_AVALIACAO = {
   pafdc_rh: "PAFDC-RH",
   pdr: "PDR",
   pdi: "PDI",
+  pde: "PDE",
   treinamento: "Treinamento",
 };
 
