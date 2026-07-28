@@ -801,6 +801,37 @@ textarea:focus {
   border-color: rgba(16, 24, 40, 0.18);
 }
 
+.linha-dependente {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.linha-dependente .dep-nome {
+  flex: 2;
+}
+
+.linha-dependente .dep-nascimento {
+  flex: 1;
+}
+
+.botao-remover-dependente {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  background: var(--cor-vencido-fundo);
+  color: var(--cor-vencido);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.botao-remover-dependente:hover {
+  background: rgba(251, 208, 208, 0.95);
+}
+
 .acoes-tabela {
   display: flex;
   gap: 6px;
