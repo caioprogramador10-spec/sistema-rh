@@ -42,6 +42,21 @@ create table if not exists funcionarios (
 alter table funcionarios add column if not exists sexo text;
 alter table funcionarios add column if not exists idade integer;
 alter table funcionarios add column if not exists dependentes text;
+alter table funcionarios add column if not exists data_nascimento date;
+
+-- ---------------------------------------------------------
+-- TABELA: dependentes
+-- Um funcionário pode ter quantos quiser. A idade não fica
+-- salva — é calculada na tela a partir da data de nascimento,
+-- então ela sempre está certa, mesmo no ano seguinte.
+-- ---------------------------------------------------------
+create table if not exists dependentes (
+  id uuid primary key default gen_random_uuid(),
+  funcionario_id uuid not null references funcionarios(id) on delete cascade,
+  nome text not null,
+  data_nascimento date,
+  created_at timestamptz not null default now()
+);
 
 -- ---------------------------------------------------------
 -- TABELA: movimentacoes_estoque
@@ -179,6 +194,7 @@ grant usage on schema public to anon, authenticated;
 
 grant select, insert, update, delete on materiais to anon, authenticated;
 grant select, insert, update, delete on funcionarios to anon, authenticated;
+grant select, insert, update, delete on dependentes to anon, authenticated;
 grant select, insert, update, delete on movimentacoes_estoque to anon, authenticated;
 grant select, insert, update, delete on exames_periodicos to anon, authenticated;
 grant select, insert, update, delete on avaliacoes to anon, authenticated;
