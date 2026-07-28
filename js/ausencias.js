@@ -28,11 +28,14 @@ async function carregarAusencias() {
 }
 
 function filtrarAusencias() {
-  const mes = document.getElementById("filtro-ausencias-mes")?.value || "";
+  const de = document.getElementById("filtro-ausencias-de")?.value || "";
+  const ate = document.getElementById("filtro-ausencias-ate")?.value || "";
   const termo = (document.getElementById("filtro-ausencias-busca")?.value || "").trim().toLowerCase();
 
   const filtradas = ausenciasCache.filter((a) => {
-    if (mes && (a.mes_referencia || "").slice(0, 7) !== mes) return false;
+    const data = a.mes_referencia || "";
+    if (de && data < de) return false;
+    if (ate && data > ate) return false;
     if (termo && !(a.funcionarios?.nome || "").toLowerCase().includes(termo)) return false;
     return true;
   });
