@@ -316,13 +316,14 @@
                     </select>
                   </div>
                   <div class="form-grupo">
-                    <label for="func-idade">Idade</label>
-                    <input type="number" id="func-idade" min="0" max="120" />
+                    <label for="func-nascimento">Data de nascimento</label>
+                    <input type="date" id="func-nascimento" />
                   </div>
                 </div>
                 <div class="form-grupo">
-                  <label for="func-dependentes">Nome dos dependentes</label>
-                  <input type="text" id="func-dependentes" placeholder="Separe por vírgula, se houver mais de um" />
+                  <label>Dependentes</label>
+                  <div id="lista-dependentes-form"></div>
+                  <button type="button" class="botao-secundario" onclick="adicionarLinhaDependente()">+ Adicionar dependente</button>
                 </div>
                 <div class="form-acoes">
                   <button type="submit" class="botao-primario" id="func-botao-salvar">Cadastrar funcionário</button>
@@ -418,6 +419,13 @@
                   <option value="em_dia">Em dia</option>
                   <option value="realizado">Realizados</option>
                 </select>
+                <input
+                  type="text"
+                  id="filtro-exames-busca"
+                  class="filtro-tabela"
+                  placeholder="🔍 Filtrar por nome..."
+                  oninput="filtrarExames()"
+                />
               </div>
               <div class="tabela-wrap">
                 <table>
@@ -678,7 +686,14 @@
             <div class="cartao">
               <h2>Registros de ausências <span class="contador-cartao" id="contador-ausencias"></span></h2>
               <div class="filtro-linha">
-                <input type="month" id="filtro-ausencias-mes" onchange="filtrarAusencias()" />
+                <div class="filtro-grupo">
+                  <label for="filtro-ausencias-de">De</label>
+                  <input type="date" id="filtro-ausencias-de" oninput="filtrarAusencias()" />
+                </div>
+                <div class="filtro-grupo">
+                  <label for="filtro-ausencias-ate">Até</label>
+                  <input type="date" id="filtro-ausencias-ate" oninput="filtrarAusencias()" />
+                </div>
                 <input
                   type="text"
                   id="filtro-ausencias-busca"
