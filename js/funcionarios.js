@@ -12,10 +12,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   formFuncionario.addEventListener("submit", adicionarFuncionario);
   formExame.addEventListener("submit", registrarExame);
+
+  adicionarLinhaDependente();
 });
 
 // ---------------------------------------------------------
+// Lista dinâmica de dependentes no formulário (nome + data
+// de nascimento). A idade nunca é digitada, é calculada.
+// ---------------------------------------------------------
+function adicionarLinhaDependente(nome = "", nascimento = "") {
+  const container = document.getElementById("lista-dependentes-form");
+  const linha = document.createElement("div");
+  linha.className = "linha-dependente";
+  linha.innerHTML = `
+    <input type="text" class="dep-nome" placeholder="Nome do dependente" value="${nome.replace(/"/g, "&quot;")}" />
+    <input type="date" class="dep-nascimento" value="${nascimento || ""}" />
+    <button type="button" class="botao-remover-dependente" onclick="this.parentElement.remove()">×</button>
+  `;
+  container.appendChild(linha);
+}
+
+function limparLinhasDependentes() {
+  document.getElementById("lista-dependentes-form").innerHTML = "";
+}
+
+function obterDependentesDoFormulario() {
+  const linhas = document.querySelectorAll("#lista-dependentes-form .linha-dependente");
+  const deps = [];
+  linhas.forEach((linha) => {
+    const nome = linha.querySelector(".dep-nome").value.trim();
+    const nascimento = linha.querySelector(".dep-nascimento").value || null;
+    if (nome) deps.push({ nome, data_nascimento: nascimento });
+  });
+  return deps;
+}
+
+// ---------------------------------------------------------
 // Cadastrar funcionário OU salvar edição de um existente
+// (e sincronizar a lista de dependentes junto)
 // ---------------------------------------------------------
 async function adicionarFuncionario(evento) {
   evento.preventDefault();
@@ -26,48 +60,54 @@ async function adicionarFuncionario(evento) {
   const setor = document.getElementById("func-setor").value.trim();
   const dataAdmissao = document.getElementById("func-admissao").value || null;
   const sexo = document.getElementById("func-sexo").value || null;
-  const idade = document.getElementById("func-idade").value
-    ? Number(document.getElementById("func-idade").value)
-    : null;
-  const dependentes = document.getElementById("func-dependentes").value.trim();
+  const dataNascimento = document.getElementById("func-nascimento").value || null;
 
   if (!nome) {
     notificar("Informe o nome do funcionário.", "erro");
     return;
   }
 
-  const registro = {
-    nome,
-    cargo: cargo || null,
-    setor: setor || null,
-    data_admissao: dataAdmissao,
-    sexo,
-    idade,
-    dependentes: dependentes || null,
-  };
+  const registro = { nome, cargo: cargo || null, setor: setor || null, data_admissao: dataAdmissao, sexo, data_nascimento: dataNascimento };
+  let funcionarioId = id;
 
   if (id) {
     const { error } = await sb.from("funcionarios").update(registro).eq("id", id);
-
     if (error) {
       console.error(error);
       notificar("Erro ao salvar alterações do funcionário.", "erro");
       return;
     }
-
-    notificar("Funcionário atualizado com sucesso.");
-    cancelarEdicaoFuncionario();
   } else {
-    const { error } = await sb.from("funcionarios").insert(registro);
-
+    const { data, error } = await sb.from("funcionarios").insert(registro).select().single();
     if (error) {
       console.error(error);
       notificar("Erro ao cadastrar funcionário.", "erro");
       return;
     }
+    funcionarioId = data.id;
+  }
 
-    notificar("Funcionário cadastrado com sucesso.");
+  // Sincroniza os dependentes: apaga os antigos e grava os atuais
+  await sb.from("dependentes").delete().eq("funcionario_id", funcionarioId);
+  const dependentes = obterDependentesDoFormulario();
+  if (dependentes.length > 0) {
+    const { error: erroDependentes } = await sb
+      .from("dependentes")
+      .insert(dependentes.map((d) => ({ ...d, funcionario_id: funcionarioId })));
+    if (erroDependentes) {
+      console.error(erroDependentes);
+      notificar("Funcionário salvo, mas houve erro ao salvar os dependentes.", "erro");
+    }
+  }
+
+  notificar(id ? "Funcionário atualizado com sucesso." : "Funcionário cadastrado com sucesso.");
+
+  if (id) {
+    cancelarEdicaoFuncionario();
+  } else {
     document.getElementById("form-funcionario").reset();
+    limparLinhasDependentes();
+    adicionarLinhaDependente();
   }
 
   carregarFuncionarios();
@@ -76,16 +116,27 @@ async function adicionarFuncionario(evento) {
 
 // ---------------------------------------------------------
 // Preenche o formulário com os dados do funcionário para edição
+// (busca do cache, que já vem com os dependentes embutidos)
 // ---------------------------------------------------------
-function editarFuncionario(id, nome, cargo, setor, dataAdmissao, sexo, idade, dependentes) {
-  document.getElementById("func-id").value = id;
-  document.getElementById("func-nome").value = nome;
-  document.getElementById("func-cargo").value = cargo || "";
-  document.getElementById("func-setor").value = setor || "";
-  document.getElementById("func-admissao").value = dataAdmissao || "";
-  document.getElementById("func-sexo").value = sexo || "";
-  document.getElementById("func-idade").value = idade || "";
-  document.getElementById("func-dependentes").value = dependentes || "";
+function editarFuncionario(id) {
+  const f = funcionariosCache.find((x) => x.id === id);
+  if (!f) return;
+
+  document.getElementById("func-id").value = f.id;
+  document.getElementById("func-nome").value = f.nome;
+  document.getElementById("func-cargo").value = f.cargo || "";
+  document.getElementById("func-setor").value = f.setor || "";
+  document.getElementById("func-admissao").value = f.data_admissao || "";
+  document.getElementById("func-sexo").value = f.sexo || "";
+  document.getElementById("func-nascimento").value = f.data_nascimento || "";
+
+  limparLinhasDependentes();
+  const dependentes = f.dependentes || [];
+  if (dependentes.length > 0) {
+    dependentes.forEach((d) => adicionarLinhaDependente(d.nome, d.data_nascimento));
+  } else {
+    adicionarLinhaDependente();
+  }
 
   document.getElementById("func-botao-salvar").textContent = "Salvar alterações";
   document.getElementById("func-botao-cancelar").classList.remove("oculto");
@@ -95,17 +146,20 @@ function editarFuncionario(id, nome, cargo, setor, dataAdmissao, sexo, idade, de
 function cancelarEdicaoFuncionario() {
   document.getElementById("form-funcionario").reset();
   document.getElementById("func-id").value = "";
+  limparLinhasDependentes();
+  adicionarLinhaDependente();
   document.getElementById("func-botao-salvar").textContent = "Cadastrar funcionário";
   document.getElementById("func-botao-cancelar").classList.add("oculto");
 }
 
 // ---------------------------------------------------------
-// Excluir funcionário (também apaga os exames dele; as
-// movimentações de estoque dele ficam, só perdem a referência)
+// Excluir funcionário (também apaga exames e dependentes dele;
+// as movimentações de estoque dele ficam, só perdem a referência)
 // ---------------------------------------------------------
-async function excluirFuncionario(id, nome) {
+async function excluirFuncionario(id) {
+  const f = funcionariosCache.find((x) => x.id === id);
   const confirmado = confirm(
-    `Excluir "${nome}"? Isso também apaga os exames periódicos cadastrados para esse funcionário. Essa ação não pode ser desfeita.`
+    `Excluir "${f?.nome || "este funcionário"}"? Isso também apaga os exames periódicos e os dependentes cadastrados. Essa ação não pode ser desfeita.`
   );
   if (!confirmado) return;
 
@@ -124,14 +178,14 @@ async function excluirFuncionario(id, nome) {
 }
 
 // ---------------------------------------------------------
-// Listar funcionários
+// Listar funcionários (já traz os dependentes embutidos)
 // ---------------------------------------------------------
 let funcionariosCache = [];
 
 async function carregarFuncionarios() {
   const { data, error } = await sb
     .from("funcionarios")
-    .select("*")
+    .select("*, dependentes(id, nome, data_nascimento)")
     .order("nome");
 
   if (error) {
@@ -176,11 +230,11 @@ function renderizarFuncionarios(data) {
 
   data.forEach((f) => {
     const linha = document.createElement("tr");
-    const nomeEscapado = f.nome.replace(/'/g, "\\'");
-    const cargoEscapado = (f.cargo || "").replace(/'/g, "\\'");
-    const setorEscapado = (f.setor || "").replace(/'/g, "\\'");
-    const sexoEscapado = (f.sexo || "").replace(/'/g, "\\'");
-    const dependentesEscapados = (f.dependentes || "").replace(/'/g, "\\'");
+
+    const dependentesTexto =
+      (f.dependentes || [])
+        .map((d) => `${d.nome}${d.data_nascimento ? ` (${calcularIdade(d.data_nascimento)} anos)` : ""}`)
+        .join(", ") || "-";
 
     linha.innerHTML = `
       <td>${f.nome}</td>
@@ -188,12 +242,12 @@ function renderizarFuncionarios(data) {
       <td>${f.setor || "-"}</td>
       <td>${formatarData(f.data_admissao)}</td>
       <td>${f.sexo || "-"}</td>
-      <td>${f.idade || "-"}</td>
-      <td>${f.dependentes || "-"}</td>
+      <td>${f.data_nascimento ? calcularIdade(f.data_nascimento) : "-"}</td>
+      <td>${dependentesTexto}</td>
       <td>
         <div class="acoes-tabela">
-          <button class="botao-mini" onclick="editarFuncionario('${f.id}', '${nomeEscapado}', '${cargoEscapado}', '${setorEscapado}', '${f.data_admissao || ""}', '${sexoEscapado}', '${f.idade || ""}', '${dependentesEscapados}')">Editar</button>
-          <button class="botao-mini-perigo" onclick="excluirFuncionario('${f.id}', '${nomeEscapado}')">Excluir</button>
+          <button class="botao-mini" onclick="editarFuncionario('${f.id}')">Editar</button>
+          <button class="botao-mini-perigo" onclick="excluirFuncionario('${f.id}')">Excluir</button>
         </div>
       </td>
     `;
@@ -366,11 +420,13 @@ let examesCache = [];
 
 function filtrarExames() {
   const statusSelecionado = document.getElementById("filtro-exames-status")?.value || "todos";
+  const termo = (document.getElementById("filtro-exames-busca")?.value || "").trim().toLowerCase();
 
-  const filtrados =
-    statusSelecionado === "todos"
-      ? examesCache
-      : examesCache.filter((exame) => classificarExame(exame).status === statusSelecionado);
+  const filtrados = examesCache.filter((exame) => {
+    if (statusSelecionado !== "todos" && classificarExame(exame).status !== statusSelecionado) return false;
+    if (termo && !(exame.funcionarios?.nome || "").toLowerCase().includes(termo)) return false;
+    return true;
+  });
 
   renderizarExames(filtrados);
 }
