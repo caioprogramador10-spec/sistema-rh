@@ -283,6 +283,22 @@ function hojeISO() {
 // ---------------------------------------------------------
 // Utilitário: soma 1 ano a uma data (string yyyy-mm-dd)
 // ---------------------------------------------------------
+// ---------------------------------------------------------
+// Utilitário: calcula a idade atual a partir da data de
+// nascimento. Sempre correta, pois é recalculada na hora.
+// ---------------------------------------------------------
+function calcularIdade(dataNascimento) {
+  if (!dataNascimento) return null;
+  const hoje = new Date();
+  const nascimento = new Date(dataNascimento + "T00:00:00");
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+  const aindaNaoFezAniversario =
+    hoje.getMonth() < nascimento.getMonth() ||
+    (hoje.getMonth() === nascimento.getMonth() && hoje.getDate() < nascimento.getDate());
+  if (aindaNaoFezAniversario) idade--;
+  return idade;
+}
+
 function somarUmAno(dataString) {
   const [ano, mes, dia] = dataString.split("-").map(Number);
   const data = new Date(ano + 1, mes - 1, dia);
