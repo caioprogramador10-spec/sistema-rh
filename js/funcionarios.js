@@ -240,7 +240,7 @@ function renderizarFuncionarios(data) {
       <td>${f.nome}</td>
       <td>${f.cargo || "-"}</td>
       <td>${f.setor || "-"}</td>
-      <td>${formatarData(f.data_admissao)}</td>
+      <td>${formatarData(f.data_admissao)}${f.data_admissao ? ` (${calcularIdade(f.data_admissao)} anos)` : ""}</td>
       <td>${f.sexo || "-"}</td>
       <td>${f.data_nascimento ? calcularIdade(f.data_nascimento) : "-"}</td>
       <td>${dependentesTexto}</td>
