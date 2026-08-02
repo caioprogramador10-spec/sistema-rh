@@ -57,7 +57,7 @@
           <span class="nav-icone">🩺</span> <span class="nav-texto">Funcionários &amp; Exames</span>
         </button>
         <button class="nav-item" data-pagina="pagina-avaliacoes">
-          <span class="nav-icone">📝</span> <span class="nav-texto">Avaliações</span>
+          <span class="nav-icone">📝</span> <span class="nav-texto">Programa de Desenvolvimento e Performance</span>
         </button>
         <button class="nav-item" data-pagina="pagina-ausencias">
           <span class="nav-icone">🗓️</span> <span class="nav-texto">Ausências</span>
@@ -461,7 +461,7 @@
       <section id="pagina-avaliacoes" class="pagina">
         <div class="pagina-header pagina-header-com-acao">
           <div>
-            <h1>Avaliações</h1>
+            <h1>Programa de Desenvolvimento e Performance</h1>
             <p>Registre PAFDC-RH, PDR, PDI e Treinamento. Alerta automático quando a próxima data preenchida estiver a 5 dias ou menos.</p>
           </div>
           <button type="button" class="botao-relatorio" onclick="gerarRelatorioAvaliacoes()">
@@ -470,7 +470,7 @@
         </div>
 
         <div class="grade-secoes">
-          <div>
+          <div id="avaliacoes-coluna-formulario">
             <div class="cartao">
               <h2>Registrar avaliação</h2>
               <p class="cartao-subtitulo">
@@ -527,8 +527,8 @@
                     <label for="avaliacao-data-1">1ª data</label>
                     <input type="date" id="avaliacao-data-1" />
                   </div>
-                  <div class="form-grupo oculto" id="grupo-avaliacao-eficacia">
-                    <label for="avaliacao-data-eficacia">Eficácia</label>
+                  <div class="form-grupo oculto" id="grupo-avaliacao-eficacia-1">
+                    <label for="avaliacao-data-eficacia">Eficácia 1ª</label>
                     <input type="date" id="avaliacao-data-eficacia" />
                   </div>
                 </div>
@@ -537,9 +537,19 @@
                     <label for="avaliacao-data-2">2ª data</label>
                     <input type="date" id="avaliacao-data-2" />
                   </div>
+                  <div class="form-grupo oculto" id="grupo-avaliacao-eficacia-2">
+                    <label for="avaliacao-data-eficacia-2">Eficácia 2ª</label>
+                    <input type="date" id="avaliacao-data-eficacia-2" />
+                  </div>
+                </div>
+                <div class="form-linha">
                   <div class="form-grupo">
                     <label for="avaliacao-data-3">3ª data</label>
                     <input type="date" id="avaliacao-data-3" />
+                  </div>
+                  <div class="form-grupo oculto" id="grupo-avaliacao-eficacia-3">
+                    <label for="avaliacao-data-eficacia-3">Eficácia 3ª</label>
+                    <input type="date" id="avaliacao-data-eficacia-3" />
                   </div>
                 </div>
                 <div class="form-grupo">
@@ -566,11 +576,22 @@
                   <option value="pde">PDE</option>
                   <option value="treinamento">Treinamento</option>
                 </select>
+                <select id="filtro-avaliacoes-prazo" onchange="filtrarAvaliacoes()">
+                  <option value="todos">Todos os prazos</option>
+                  <option value="alerta">A vencer (≤ 5 dias)</option>
+                  <option value="atrasado">Já venceram</option>
+                  <option value="em_dia">Em dia</option>
+                  <option value="concluido">Concluídos</option>
+                  <option value="pausado">Histórico (pausado)</option>
+                </select>
+                <select id="filtro-avaliacoes-departamento" onchange="filtrarAvaliacoes()">
+                  <option value="todos">Todos os departamentos</option>
+                </select>
                 <input
                   type="text"
                   id="filtro-avaliacoes-busca"
                   class="filtro-tabela"
-                  placeholder="🔍 Filtrar por nome ou departamento..."
+                  placeholder="🔍 Filtrar por nome..."
                   oninput="filtrarAvaliacoes()"
                 />
               </div>
@@ -582,16 +603,18 @@
                       <th>Departamento</th>
                       <th>Tipo</th>
                       <th>1ª</th>
-                      <th>Eficácia</th>
+                      <th>Eficácia 1ª</th>
                       <th>2ª</th>
+                      <th>Eficácia 2ª</th>
                       <th>3ª</th>
+                      <th>Eficácia 3ª</th>
                       <th>Próximo prazo</th>
                       <th>Resultado</th>
                       <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody id="tabela-avaliacoes-corpo">
-                    <tr><td colspan="10" class="celula-vazia">Carregando...</td></tr>
+                    <tr><td colspan="12" class="celula-vazia">Carregando...</td></tr>
                   </tbody>
                 </table>
               </div>
