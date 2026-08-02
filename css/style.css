@@ -125,6 +125,26 @@ body::after {
 }
 
 /* ---------------------------------------------------------
+   MODO VISUALIZAÇÃO: só a aba Avaliações, sem nenhum botão
+   --------------------------------------------------------- */
+body.modo-visualizacao .nav-item:not([data-pagina="pagina-avaliacoes"]),
+body.modo-visualizacao .sidebar-links,
+body.modo-visualizacao #avaliacoes-coluna-formulario,
+body.modo-visualizacao .botao-relatorio,
+body.modo-visualizacao #pagina-avaliacoes .acoes-tabela {
+  display: none !important;
+}
+
+body.modo-visualizacao #pagina-avaliacoes .grade-secoes {
+  grid-template-columns: 1fr;
+}
+
+body.modo-visualizacao #tabela-avaliacoes-corpo td:last-child,
+body.modo-visualizacao #pagina-avaliacoes thead th:last-child {
+  display: none;
+}
+
+/* ---------------------------------------------------------
    TELA DE ACESSO (senha)
    --------------------------------------------------------- */
 .tela-acesso {
