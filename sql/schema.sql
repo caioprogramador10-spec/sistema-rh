@@ -128,6 +128,17 @@ create table if not exists avaliacoes (
 -- Garante a coluna nova mesmo em bancos que já tinham a tabela
 alter table avaliacoes add column if not exists resultado text;
 
+-- Eficácia agora existe nas 3 etapas do treinamento
+alter table avaliacoes add column if not exists data_eficacia_2 date;
+alter table avaliacoes add column if not exists data_eficacia_3 date;
+
+-- Mudança de avaliação (ex: PDI -> PDR por queda de rendimento):
+-- "pausado" marca um registro como histórico (não conta mais pra
+-- alerta), e "origem_id" aponta pro registro anterior, pra poder
+-- voltar exatamente de onde parou sem perder a informação.
+alter table avaliacoes add column if not exists pausado boolean not null default false;
+alter table avaliacoes add column if not exists origem_id uuid references avaliacoes(id);
+
 -- Libera o tipo "pde" em bancos que já tinham a tabela criada
 -- antes dessa opção existir
 alter table avaliacoes drop constraint if exists avaliacoes_tipo_check;
