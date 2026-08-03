@@ -33,3 +33,9 @@ const SUPABASE_KEY = "sb_publishable_hCcort9rdDsHcO--2L5txg_zKBflR6Y";
 // TROQUE esse valor para a senha que o RH vai usar.
 // =========================================================
 const ACESSO_SENHA = "conexaorh2026";
+
+// Senha de VISUALIZAÇÃO: só mostra a aba Avaliações, sem
+// nenhum botão (sem cadastrar, editar, excluir ou relatório).
+// Use pra dar acesso só de consulta pra alguém, sem risco de
+// mexer nos dados.
+const ACESSO_SENHA_VISUALIZACAO = "avaliacoes2026";
