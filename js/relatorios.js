@@ -232,13 +232,13 @@ function gerarRelatorioEstoque() {
 function gerarRelatorioAvaliacoes() {
   const secoes = [
     {
-      titulo: "Avaliações (PAFDC-RH, PDR, PDI, PDE, Treinamento)",
+      titulo: "Programa de Desenvolvimento e Performance (PAFDC-RH, PDR, PDI, PDE, Treinamento)",
       tabelaHtml: clonarTabelaParaRelatorio("tabela-avaliacoes-corpo"),
     },
   ];
 
   abrirRelatorio(
-    "Relatório de Avaliações",
+    "Relatório — Programa de Desenvolvimento e Performance",
     "PAFDC-RH, PDR, PDI, PDE e Treinamento — datas e prazos",
     secoes
   );
