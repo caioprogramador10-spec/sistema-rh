@@ -38,4 +38,4 @@ const ACESSO_SENHA = "conexaorh2026";
 // nenhum botão (sem cadastrar, editar, excluir ou relatório).
 // Use pra dar acesso só de consulta pra alguém, sem risco de
 // mexer nos dados.
-const ACESSO_SENHA_VISUALIZACAO = "avaliacoes2026";
+const ACESSO_SENHA_VISUALIZACAO = "avaliacaorh2026";
