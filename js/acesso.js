@@ -20,10 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("acesso-senha-input");
   const erro = document.getElementById("acesso-erro");
 
-  const jaLiberado = sessionStorage.getItem("rh_acesso_liberado") === "sim";
+  const modoSalvo = sessionStorage.getItem("rh_acesso_modo");
 
-  if (jaLiberado) {
+  if (modoSalvo) {
     tela.classList.add("oculto");
+    aplicarModoAcesso(modoSalvo);
     iniciarApp();
   } else {
     input.focus();
@@ -32,10 +33,15 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", (evento) => {
     evento.preventDefault();
 
-    if (input.value === ACESSO_SENHA) {
-      sessionStorage.setItem("rh_acesso_liberado", "sim");
+    let modo = null;
+    if (input.value === ACESSO_SENHA) modo = "completo";
+    else if (input.value === ACESSO_SENHA_VISUALIZACAO) modo = "visualizacao";
+
+    if (modo) {
+      sessionStorage.setItem("rh_acesso_modo", modo);
       tela.classList.add("oculto");
       erro.classList.add("oculto");
+      aplicarModoAcesso(modo);
       iniciarApp();
     } else {
       erro.classList.remove("oculto");
@@ -44,3 +50,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// ---------------------------------------------------------
+// Modo "visualização": só a aba Avaliações, sem nenhum botão
+// ---------------------------------------------------------
+function aplicarModoAcesso(modo) {
+  if (modo !== "visualizacao") return;
+
+  document.body.classList.add("modo-visualizacao");
+
+  document.querySelectorAll(".nav-item").forEach((b) => b.classList.remove("ativo"));
+  document.querySelectorAll(".pagina").forEach((p) => p.classList.remove("ativa"));
+  document.querySelector('[data-pagina="pagina-avaliacoes"]').classList.add("ativo");
+  document.getElementById("pagina-avaliacoes").classList.add("ativa");
+}
